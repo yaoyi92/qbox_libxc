@@ -1,4 +1,8 @@
+add a libxc interface to qbox.
+yy
 
+
+=================
  This is the Qbox package.
 
  Qbox is a C++/MPI/OpenMP implementation of First-Principles Molecular Dynamics.
@@ -27,3 +31,6 @@
  the License, or (at your option) any later version.
  See the file COPYING in the root directory of this distribution
  or <http://www.gnu.org/licenses/>.
+
+
+
