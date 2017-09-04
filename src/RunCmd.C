@@ -88,6 +88,7 @@ int RunCmd::action(int argc, char **argv)
 
   if ( atomic_density )
     stepper->initialize_density();
+    stepper->initialize_kinetic_energy_density();
 
   s->wf.info(cout,"wavefunction");
   stepper->step(niter);

@@ -159,6 +159,32 @@ void BOSampleStepper::initialize_density(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void BOSampleStepper::initialize_kinetic_energy_density(void)
+{
+  // initialize cd_ with a sum of atomic densities
+
+
+  const Basis* const vbasis = cd_.vbasis();
+  const int ngloc = vbasis->localsize();
+
+  vector<complex<double> > taupst(ngloc);
+
+  memset( (void*)&taupst[0], 0, 2*ngloc*sizeof(double) );
+
+  // Initialize charge equally for both spins
+  cd_.taug[0] = taupst;
+  if ( cd_.taug.size() == 2 )
+  {
+    assert(cd_.taug[0].size()==cd_.taug[1].size());
+    for ( int i = 0; i < cd_.taug[0].size(); i++ )
+    {
+      cd_.taug[0][i] = 0.5 * taupst[i];
+      cd_.taug[1][i] = 0.5 * taupst[i];
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void BOSampleStepper::step(int niter)
 {
   const Context& ctxt = s_.ctxt_;
@@ -363,6 +389,11 @@ void BOSampleStepper::step(int niter)
       tmap["charge"].start();
       cd_.update_density();
       tmap["charge"].stop();
+      // YY
+      tmap["kinetic_energy_density"].start();
+      cd_.update_kinetic_energy_density();
+      tmap["kinetic_energy_density"].stop();
+      // YY
 
       tmap["update_vhxc"].start();
       ef_.update_vhxc(compute_stress);
@@ -756,6 +787,15 @@ void BOSampleStepper::step(int niter)
           cd_.update_density();
         tmap["charge"].stop();
 
+        // YY
+        tmap["kinetic_energy_density"].start();
+        if ( itscf==0 && initial_atomic_density )
+          cd_.update_taur();
+        else
+          cd_.update_kinetic_energy_density();
+        tmap["kinetic_energy_density"].stop();
+        // YY
+
         // charge mixing
         if ( nite_ > 0 )
         {
@@ -1097,6 +1137,11 @@ void BOSampleStepper::step(int niter)
         tmap["charge"].start();
         cd_.update_density();
         tmap["charge"].stop();
+        // YY
+        tmap["kinetic_energy_density"].start();
+        cd_.update_kinetic_energy_density();
+        tmap["kinetic_energy_density"].stop();
+        // YY
 
         tmap["update_vhxc"].start();
         ef_.update_vhxc(compute_stress);
@@ -1165,6 +1210,11 @@ void BOSampleStepper::step(int niter)
       tmap["charge"].start();
       cd_.update_density();
       tmap["charge"].stop();
+      // YY
+      tmap["kinetic_energy_density"].start();
+      cd_.update_kinetic_energy_density();
+      tmap["kinetic_energy_density"].stop();
+      // YY
       tmap["update_vhxc"].start();
       ef_.update_vhxc(compute_stress);
       tmap["update_vhxc"].stop();
@@ -1207,6 +1257,11 @@ void BOSampleStepper::step(int niter)
     tmap["charge"].start();
     cd_.update_density();
     tmap["charge"].stop();
+    // YY
+    tmap["kinetic_energy_density"].start();
+    cd_.update_kinetic_energy_density();
+    tmap["kinetic_energy_density"].stop();
+    // YY
 
     tmap["update_vhxc"].start();
     ef_.update_vhxc(compute_stress);
@@ -1273,6 +1328,11 @@ void BOSampleStepper::step(int niter)
     tmap["charge"].start();
     cd_.update_density();
     tmap["charge"].stop();
+    // YY
+    tmap["kinetic_energy_density"].start();
+    cd_.update_kinetic_energy_density();
+    tmap["kinetic_energy_density"].stop();
+    // YY
 
     tmap["update_vhxc"].start();
     ef_.update_vhxc(compute_stress);

@@ -355,6 +355,128 @@ void SlaterDet::compute_density(FourierTransform& ft,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void SlaterDet::compute_kinetic_energy_density(FourierTransform& ft,
+Basis& vbasis,  double weight, double* tau) const
+{
+  //Timer tm_ft, tm_rhosum;
+  // compute density of the states residing on my column of ctxt_
+  assert(occ_.size() == c_.n());
+  vector<complex<double> > tmp(basis_->localsize());
+  vector<complex<double> > tmpr(ft.np012loc());
+  vector<double> tautmp(ft.np012loc());
+
+  assert(basis_->cell().volume() > 0.0);
+  //cout << vbasis.cell().volume() << basis_->cell().volume() << endl;
+  const double omega_inv = 1.0 / basis_->cell().volume();
+  const int np012loc = ft.np012loc();
+
+
+  //if ( basis_->real() )
+  //{
+  //  // transform two states at a time
+  //  for ( int n = 0; n < nstloc()-1; n++, n++ )
+  //  {
+  //    // global n index
+  //    const int nn = ctxt_.mycol() * c_.nb() + n;
+  //    const double fac1 = weight * omega_inv * occ_[nn];
+  //    const double fac2 = weight * omega_inv * occ_[nn+1];
+
+  //    if ( fac1 + fac2 > 0.0 )
+  //    {
+  //      //tm_ft.start();
+  //      ft.backward(c_.cvalptr(n*c_.mloc()),
+  //                  c_.cvalptr((n+1)*c_.mloc()),&tmp[0]);
+  //      //tm_ft.stop();
+  //      const double* psi = (double*) &tmp[0];
+  //      int ii = 0;
+  //      //tm_rhosum.start();
+  //      for ( int i = 0; i < np012loc; i++ )
+  //      {
+  //        const double psi1 = psi[ii];
+  //        const double psi2 = psi[ii+1];
+  //        tau[i] += fac1 * psi1 * psi1 + fac2 * psi2 * psi2;
+  //        ii++; ii++;
+  //      }
+  //      //tm_rhosum.start();
+  //    }
+  //  }
+  //  if ( nstloc() % 2 != 0 )
+  //  {
+  //    const int n = nstloc()-1;
+  //    // global n index
+  //    const int nn = ctxt_.mycol() * c_.nb() + n;
+  //    const double fac1 = weight * omega_inv * occ_[nn];
+
+  //    if ( fac1 > 0.0 )
+  //    {
+  //      ft.backward(c_.cvalptr(n*c_.mloc()),&tmp[0]);
+  //      const double* psi = (double*) &tmp[0];
+  //      int ii = 0;
+  //      for ( int i = 0; i < np012loc; i++ )
+  //      {
+  //        const double psi1 = psi[ii];
+  //        tau[i] += fac1 * psi1 * psi1;
+  //        ii++; ii++;
+  //      }
+  //    }
+  //  }
+  //}
+  //else
+  {
+    // only one transform at a time
+    for ( int n = 0; n < nstloc(); n++ )
+    {
+      // global n index
+      const int nn = ctxt_.mycol() * c_.nb() + n;
+      const double fac = 0.5 * weight * omega_inv * occ_[nn];
+      const complex<double> *cptr = c_.cvalptr();
+
+      if ( fac > 0.0 )
+      {
+        for ( int i = 0; i < np012loc; i++ )
+          tautmp[i] = 0.0;
+        for ( int j = 0; j < 3; j++)
+        {
+          const double *kpgxj = basis_->kpgx_ptr(j);
+          for ( int i = 0; i < basis_->localsize(); i++ )
+            tmp[i] = complex<double>(0.0, kpgxj[i]) * cptr[i+n*c_.mloc()];
+          //for ( int i = 0; i < basis_->localsize(); i++ )
+          //  tmp[i] = cptr[i];
+
+          ft.backward(&tmp[0],&tmpr[0]);
+
+          for ( int i = 0; i < np012loc; i++ )
+            tautmp[i] += norm(tmpr[i]);
+            //tautmp[i] += fac * pow(norm(tmpr[i]),2.0);
+          //while (true){
+          //}
+        }
+      }
+      for ( int i = 0; i < np012loc; i++)
+        tau[i] += fac * tautmp[i];
+        //tau[i] += sqrt(tautmp[i]);
+    }
+  }
+  //for ( int n = 0; n < nstloc(); n++ )
+  //{
+  //  // global n index
+  //  const int nn = ctxt_.mycol() * c_.nb() + n;
+  //  const double fac = weight * omega_inv * occ_[nn];
+
+  //  if ( fac > 0.0 )
+  //  {
+  //    ft.backward(c_.cvalptr(n*c_.mloc()),&tmp[0]);
+  //    for ( int i = 0; i < np012loc; i++ )
+  //      tau[i] += fac * norm(tmp[i]);
+  //  }
+  //}
+  // cout << "SlaterDet: compute_density: ft_bwd time: "
+  //      << tm_ft.real() << endl;
+  // cout << "SlaterDet: compute_density: rhosum time: "
+  //      << tm_rhosum.real() << endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void SlaterDet::rs_mul_add(FourierTransform& ft,
   const double* v, SlaterDet& sdp) const
 {

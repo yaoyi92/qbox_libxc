@@ -68,6 +68,8 @@ int PlotCmd::action(int argc, char **argv)
   bool plot_vlocal = false;
   bool plot_wf = false;
   bool plot_wfs = false;
+  // YY
+  bool plot_kinetic_energy_density = false;
   int nmin,nmax,nwf;
   // ispin = 0: plot both spins
   // ispin = 1: plot first spin
@@ -83,6 +85,11 @@ int PlotCmd::action(int argc, char **argv)
     if ( !strcmp(argv[iarg],"-density") )
     {
       plot_density = true;
+      xyz = false;
+    }
+    else if ( !strcmp(argv[iarg],"-kinetic_energy_density") )
+    {
+      plot_kinetic_energy_density = true;
       xyz = false;
     }
     else if ( !strcmp(argv[iarg],"-vlocal") )
@@ -146,7 +153,7 @@ int PlotCmd::action(int argc, char **argv)
     }
     else if ( !strcmp(argv[iarg],"-spin") )
     {
-      if ( !(plot_density || plot_wf || plot_wfs) )
+      if ( !(plot_density || plot_kinetic_energy_density || plot_wf || plot_wfs) )
       {
         if ( ui->onpe0() )
           cout << usage << endl;
@@ -226,6 +233,85 @@ int PlotCmd::action(int argc, char **argv)
         // ispin==1 or ispin==2
         for ( int i = 0; i < cd.vft()->np012loc(); i++ )
           tmpr[i] = cd.rhor[ispin-1][i];
+      }
+    }
+
+    // send blocks of tmpr to pe0
+    // send from first context column only
+    for ( int i = 0; i < ctxt.nprow(); i++ )
+    {
+      bool iamsending = ctxt.mycol() == 0 && i == ctxt.myrow();
+
+      // send size of tmpr block
+      int size=-1;
+      if ( ctxt.onpe0() )
+      {
+        if ( iamsending )
+        {
+          // sending to self, size not needed
+        }
+        else
+          ctxt.irecv(1,1,&size,1,i,0);
+      }
+      else
+      {
+        if ( iamsending )
+        {
+          size = cd.vft()->np012loc();
+          ctxt.isend(1,1,&size,1,0,0);
+        }
+      }
+
+      // send tmpr block
+      if ( ctxt.onpe0() )
+      {
+        if ( iamsending )
+        {
+          // do nothing, data is already in place
+        }
+        else
+        {
+          int istart = cd.vft()->np0() * cd.vft()->np1() *
+                       cd.vft()->np2_first(i);
+          ctxt.drecv(size,1,&tmpr[istart],1,i,0);
+        }
+      }
+      else
+      {
+        if ( iamsending )
+        {
+          ctxt.dsend(size,1,&tmpr[0],1,0,0);
+        }
+      }
+    }
+  } // plot_density
+  else if ( plot_kinetic_energy_density )
+  {
+    ChargeDensity cd(s->wf);
+    cd.update_kinetic_energy_density();
+    tmpr.resize(cd.vft()->np012());
+    np0 = cd.vft()->np0();
+    np1 = cd.vft()->np1();
+    np2 = cd.vft()->np2();
+    if ( s->wf.nspin() == 1 )
+    {
+      for ( int i = 0; i < cd.vft()->np012loc(); i++ )
+        tmpr[i] = cd.taur[0][i];
+    }
+    else
+    {
+      if ( ispin == 0 )
+      {
+        // plot both spins
+        for ( int i = 0; i < cd.vft()->np012loc(); i++ )
+          tmpr[i] = cd.taur[0][i] + cd.taur[1][i];
+      }
+      else
+      {
+        // plot one spin only
+        // ispin==1 or ispin==2
+        for ( int i = 0; i < cd.vft()->np012loc(); i++ )
+          tmpr[i] = cd.taur[ispin-1][i];
       }
     }
 
@@ -594,7 +680,7 @@ int PlotCmd::action(int argc, char **argv)
     }
   } // if plot_atoms
 
-  if ( plot_density || plot_vlocal || plot_wf || plot_wfs )
+  if ( plot_density || plot_kinetic_energy_density || plot_vlocal || plot_wf || plot_wfs )
   {
     // process the function in tmpr
     if ( ctxt.onpe0() )

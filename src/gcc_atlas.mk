@@ -17,7 +17,7 @@
 #-------------------------------------------------------------------------------
  PLT=Linux_x8664
 #-------------------------------------------------------------------------------
- LIBXCDIR = /home/yiy/Codes/libxc/libxc-3.0.0/install-yiy/
+ LIBXCDIR = /home/yiy/Codes/qbox_libxc/libxc/libxc-3.0.0/install-yiy
  SCALAPACKDIR = /usr/lib
  XERCESCDIR=/home/yiy/Codes/qbox/xerces-c-src_2_8_0
  ATLASDIR= /usr/lib
@@ -71,7 +71,7 @@ endif
 
  INCLUDE += -I$(XERCESCDIR)/include -I${LIBXCDIR}/include
 
- CXXFLAGS= -g -O3 -Wunused -D$(PLT) $(INCLUDE) $(PLTFLAGS) $(DFLAGS)
+ CXXFLAGS= -g -O0 -Wunused -D$(PLT) $(INCLUDE) $(PLTFLAGS) $(DFLAGS)
 
  LIBPATH += -L$(XERCESCDIR)/lib -L${LIBXCDIR}/lib \
             -L$(ATLASDIR) -L$(SCALAPACKDIR) -L/usr/lib64

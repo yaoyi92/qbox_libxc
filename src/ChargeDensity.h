@@ -44,6 +44,9 @@ class ChargeDensity
   FourierTransform* vft_;
   std::vector<FourierTransform*> ft_; // ft_[ikp];
   std::valarray<std::complex<double> > rhotmp;
+  // YY
+  std::valarray<std::complex<double> > tautmp;
+  // YY
 
   public:
 
@@ -51,10 +54,21 @@ class ChargeDensity
 
   std::vector<std::vector<double> > rhor; // rhor[ispin][i]
   std::vector<std::vector<std::complex<double> > > rhog; // rhog[ispin][ig]
+
+  // kinetic energy density YY
+  std::vector<std::vector<double> > taur; // taur[ispin][i]
+  std::vector<std::vector<std::complex<double> > > taug; // taug[ispin][ig]
+  // YY
+
   // core density ptr. If non-zero, contains the real-space core density
   double* rhocore_r;
   void update_density(void);
   void update_rhor(void);
+
+  // YY
+  void update_kinetic_energy_density(void);
+  void update_taur(void);
+  // YY
 
   const Context& context(void) const { return ctxt_; }
   MPI_Comm vcomm(void) const { return vcomm_; }

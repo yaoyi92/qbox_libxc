@@ -51,6 +51,7 @@ class SampleStepper
   void print_stress(void);
   void compute_sigma(void); // compute kinetic contribution to stress
   virtual void initialize_density() {}
+  virtual void initialize_kinetic_energy_density() {}
   void set_iter_cmd(std::string s) { iter_cmd_ = s; }
   void set_iter_cmd_period(int i) { iter_cmd_period_ = i; }
 

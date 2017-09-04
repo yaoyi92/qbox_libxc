@@ -54,6 +54,7 @@ class BOSampleStepper : public SampleStepper
 
   void step(int niter);
   void initialize_density(void);
+  void initialize_kinetic_energy_density(void);
 
   BOSampleStepper(Sample& s, int nitscf, int nite);
   ~BOSampleStepper();
