@@ -70,7 +70,7 @@ XCPotential::XCPotential(const ChargeDensity& cd, const string functional_name_i
   }
   else if ( functional_name == "LIBXC" )
   {
-    xcf_ = new LIBXCFunctional(cd_.rhor, functional_name_input);
+    xcf_ = new LIBXCFunctional(cd_.rhor, cd_.taur, functional_name_input);
   }
   else
   {
@@ -181,7 +181,7 @@ void XCPotential::update(vector<vector<double> >& vr)
     exc_ = tsum[0];
     dxc_ = tsum[1];
   }
-  else
+  else if (!xcf_->ismGGA())
   {
     // GGA functional
     exc_ = 0.0;
@@ -354,6 +354,111 @@ void XCPotential::update(vector<vector<double> >& vr)
         vr[0][ir] += v_up;
         vr[1][ir] += v_dn;
       }
+    }
+    double sum[2], tsum[2];
+    sum[0] = esum * vbasis_.cell().volume() / vft_.np012();
+    sum[1] = dsum * vbasis_.cell().volume() / vft_.np012();
+    MPI_Allreduce(&sum,&tsum,2,MPI_DOUBLE,MPI_SUM,vbasis_.comm());
+    exc_ = tsum[0];
+    dxc_ = tsum[1];
+  }
+  else
+  {
+    // mGGA functional
+    exc_ = 0.0;
+
+    // compute grad_rho
+    const double omega_inv = 1.0 / vbasis_.cell().volume();
+    if ( nspin_ == 1 )
+    {
+      for ( int j = 0; j < 3; j++ )
+      {
+        const double *const gxj = vbasis_.gx_ptr(j);
+        for ( int ig = 0; ig < ngloc_; ig++ )
+        {
+          /* i*G_j*c(G) */
+          tmp1[ig] = complex<double>(0.0,omega_inv*gxj[ig]) * cd_.rhog[0][ig];
+        }
+        vft_.backward(&tmp1[0],&tmpr[0]);
+        int inc2=2, inc1=1;
+        double *grj = xcf_->grad_rho[j];
+        dcopy(&np012loc_,(double*)&tmpr[0],&inc2,grj,&inc1);
+      }
+    }
+    else
+    {
+      // spin not implement for mGGA
+    }
+
+    xcf_->setxc();
+
+    // compute xc potential
+    // take divergence of grad(rho)*vxc2
+
+    // compute components of grad(rho) * vxc2
+    if ( nspin_ == 1 )
+    {
+      for ( int j = 0; j < 3; j++ )
+      {
+        const double *const gxj = vbasis_.gx_ptr(j);
+        const double *const grj = xcf_->grad_rho[j];
+        const double *const v2 = xcf_->vxc2;
+        for ( int ir = 0; ir < np012loc_; ir++ )
+        {
+          tmpr[ir] = grj[ir] * v2[ir];
+        }
+        // derivative
+        vft_.forward(&tmpr[0],&tmp1[0]);
+        for ( int ig = 0; ig < ngloc_; ig++ )
+        {
+          // i*G_j*c(G)
+          tmp1[ig] *= complex<double>(0.0,gxj[ig]);
+        }
+        // back to real space
+        vft_.backward(&tmp1[0],&tmpr[0]);
+        // accumulate div(vxc2*grad_rho) in vxctmp
+        double one = 1.0;
+        int inc1 = 1, inc2 = 2;
+        if ( j == 0 )
+        {
+          dcopy(&np012loc_,(double*)&tmpr[0],&inc2,&vxctmp[0][0],&inc1);
+        }
+        else
+        {
+          daxpy(&np012loc_,&one,(double*)&tmpr[0],&inc2,&vxctmp[0][0],&inc1);
+        }
+      }
+    }
+    else
+    {
+      // spin not implement for mGGA
+    }
+
+    // add xc potential to local potential in vr[i]
+    // div(vxc2*grad_rho) is stored in vxctmp[ispin][ir]
+
+    double esum=0.0;
+    double dsum=0.0;
+    if ( nspin_ == 1 )
+    {
+      const double *const e = xcf_->exc;
+      const double *const v1 = xcf_->vxc1;
+      const double *const rh = xcf_->rho;
+      {
+        for ( int ir = 0; ir < np012loc_; ir++ )
+        {
+          const double e_i = e[ir];
+          const double rh_i = rh[ir];
+          const double v_i = v1[ir] + vxctmp[0][ir];
+          esum += rh_i * e_i;
+          dsum += rh_i * ( e_i - v_i );
+          vr[0][ir] += v_i;
+        }
+      }
+    }
+    else
+    {
+      // spin not implement for mGGA
     }
     double sum[2], tsum[2];
     sum[0] = esum * vbasis_.cell().volume() / vft_.np012();
