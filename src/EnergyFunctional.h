@@ -79,6 +79,9 @@ class EnergyFunctional
   public:
 
   std::vector<std::vector<double> > v_r;
+
+  std::vector<std::vector<double> > vxc_tau; // YY metagga
+
   mutable TimerMap tmap;
 
   double energy(bool compute_hpsi, Wavefunction& dwf,

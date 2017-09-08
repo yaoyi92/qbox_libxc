@@ -253,10 +253,14 @@ void EnergyFunctional::update_vhxc(bool compute_stress)
   // update XC operator
   // compute xc energy, update self-energy operator and potential
   tmap["exc"].start();
+
   for ( int ispin = 0; ispin < wf.nspin(); ispin++ )
     memset((void*)&v_r[ispin][0], 0, vft->np012loc()*sizeof(double));
 
-  xco->update(v_r, compute_stress);
+  for ( int ispin = 0; ispin < wf.nspin(); ispin++ )
+    memset((void*)&vxc_tau[ispin][0], 0, vft->np012loc()*sizeof(double));
+
+  xco->update(v_r, vxc_tau, compute_stress);
   exc_ = xco->exc();
   dxc_ = xco->dxc();
   if ( compute_stress )

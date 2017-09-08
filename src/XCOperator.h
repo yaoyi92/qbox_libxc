@@ -60,7 +60,7 @@ class XCOperator
   bool hasGGA(void) { return hasGGA_; };
   bool hasHF(void) { return hasHF_; };
 
-  void update(std::vector<std::vector<double> >& vr, bool compute_stress);
+  void update(std::vector<std::vector<double> >& vr, std::vector<std::vector<double> >& vxc_tau, bool compute_stress);
   void apply_self_energy(Wavefunction &dwf);
   void compute_stress(std::valarray<double>& sigma);
   void cell_moved(void);

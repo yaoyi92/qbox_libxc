@@ -128,7 +128,7 @@ XCOperator::~XCOperator()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void XCOperator::update(std::vector<std::vector<double> >& vr, bool compute_stress)
+void XCOperator::update(std::vector<std::vector<double> >& vr, std::vector<std::vector<double> >& vxc_tau, bool compute_stress)
 {
   // update xc potential and self-energy
   // used whenever the charge density and/or wave functions have changed
@@ -136,7 +136,7 @@ void XCOperator::update(std::vector<std::vector<double> >& vr, bool compute_stre
   if ( hasPotential_ )
   {
     // update LDA/GGA xc potential
-    xcp_->update( vr );
+    xcp_->update( vr , vxc_tau);
 
     // LDA/GGA exchange energy
     exc_ = xcp_->exc();

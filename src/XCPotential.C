@@ -26,6 +26,11 @@
 #include "Basis.h"
 #include "FourierTransform.h"
 #include "blas.h" // daxpy, dcopy
+
+#include "Sample.h"
+#include "Wavefunction.h"
+#include "SlaterDet.h"
+#include "Basis.h"
 #include <cassert>
 using namespace std;
 
@@ -70,7 +75,7 @@ XCPotential::XCPotential(const ChargeDensity& cd, const string functional_name_i
   }
   else if ( functional_name == "LIBXC" )
   {
-    xcf_ = new LIBXCFunctional(cd_.rhor, functional_name_input);
+    xcf_ = new LIBXCFunctional(cd_.rhor, cd_.taur, functional_name_input);
   }
   else
   {
@@ -90,6 +95,7 @@ XCPotential::XCPotential(const ChargeDensity& cd, const string functional_name_i
       vxctmp[ispin].resize(np012loc_);
     tmpr.resize(np012loc_);
   }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -105,7 +111,7 @@ bool XCPotential::isGGA(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void XCPotential::update(vector<vector<double> >& vr)
+void XCPotential::update(vector<vector<double> >& vr, vector<vector<double> >& vxc_tau)
 {
   // compute exchange-correlation energy and add vxc potential to vr[ispin][ir]
 
@@ -181,7 +187,7 @@ void XCPotential::update(vector<vector<double> >& vr)
     exc_ = tsum[0];
     dxc_ = tsum[1];
   }
-  else
+  else 
   {
     // GGA functional
     exc_ = 0.0;
@@ -361,6 +367,25 @@ void XCPotential::update(vector<vector<double> >& vr)
     MPI_Allreduce(&sum,&tsum,2,MPI_DOUBLE,MPI_SUM,vbasis_.comm());
     exc_ = tsum[0];
     dxc_ = tsum[1];
+  }
+
+
+  if ( xcf_->ismGGA() )
+  {
+    if ( nspin_ == 1 )
+    {
+      const double *const vxc3 = xcf_->vxc3;
+      {
+        for ( int ir = 0; ir < np012loc_; ir++ )
+        {
+          vxc_tau[0][ir] += vxc3[ir];
+        }
+      }
+    }
+    else
+    {
+      // spin not implement
+    }
   }
 }
 ////////////////////////////////////////////////////////////////////////////////

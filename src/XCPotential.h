@@ -39,6 +39,7 @@ class XCPotential
   std::vector<std::vector<double> > vxctmp;          // vxctmp[ispin][ir]
   std::vector<std::complex<double> > tmpr;           // tmpr[ir]
   std::vector<std::complex<double> > tmp1, tmp2;     // tmp1[ig], tmp2[ig]
+  std::vector<std::vector<double> > vxc_tau;          // vxc_tau[ispin][ir]
 
   double exc_, dxc_;
   int nspin_;
@@ -55,7 +56,7 @@ class XCPotential
   XCPotential(const ChargeDensity& cd, const std::string functional_name,
     const Control& ctrl);
   ~XCPotential();
-  void update(std::vector<std::vector<double> >& vr);
+  void update(std::vector<std::vector<double> >& vr, std::vector<std::vector<double> >& vxc_tau);
   void compute_stress(std::valarray<double>& sigma_exc);
   double exc(void) { return exc_; }
   double dxc(void) { return dxc_; }

@@ -68,8 +68,11 @@ class XCFunctional
   double *exc, *exc_up, *exc_dn;
   double *vxc1, *vxc1_up, *vxc1_dn;
   double *vxc2, *vxc2_upup, *vxc2_dndn, *vxc2_updn, *vxc2_dnup;
+  const double *tau;
+  double *vxc3;
 
   virtual bool isGGA(void) const = 0;
+  virtual bool ismGGA(void) const { return false ;};
   virtual std::string name(void) const = 0;
   int np(void) const { return _np; };
   int nspin(void) const { return _nspin; };
@@ -83,6 +86,10 @@ class XCFunctional
     exc = exc_up = exc_dn = 0;
     vxc1 = vxc1_up = vxc1_dn = 0;
     vxc2 = vxc2_upup = vxc2_dndn = vxc2_updn = vxc2_dnup = 0;
+
+    tau = 0;
+    vxc3 = 0;
+
   }
 
   // virtual destructor needed to ensure proper deallocation
