@@ -1,9 +1,9 @@
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/home/yiy/Codes/qbox/xerces-c-src_2_8_0/lib
+#export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/home/yiy/Codes/qbox/xerces-c-src_2_8_0/lib
 #QB=/home/yiy/Codes/qbox/qbox-1.63.7/src/qb
-QB="mpirun.openmpi -n 6 ../../src/qb"
-#QB="../../src/qb"
+#QB="mpirun -n 6 ../../src/qb"
+QB="../../src/qb"
 #mpirun.openmpi -n 1 $QB test.i > test.out
-$QB test_LDA.i > test_LDA.out
+#$QB test_LDA.i > test_LDA.out
 #$QB test_LIBXC_LDA.i > test_LIBXC_LDA.out
 #$QB test_VWN.i > test_VWN.out
 #$QB test_LIBXC_VWN.i > test_LIBXC_VWN.out
@@ -16,4 +16,7 @@ $QB test_LDA.i > test_LDA.out
 #$QB test_B3LYP.i > test_B3LYP.out
 #$QB test_LIBXC_B3LYP.i > test_LIBXC_B3LYP.out
 #$QB test_LIBXC_B3LYP_2.i > test_LIBXC_B3LYP_2.out
+#$QB test_SCAN.i  > test_SCAN_1.out
+mpirun -n 6 $QB test_SCAN.i  > test_SCAN_6.out
+#mpirun -n 9 $QB test_SCAN.i  > test_SCAN_9.out
 #gdb $QB

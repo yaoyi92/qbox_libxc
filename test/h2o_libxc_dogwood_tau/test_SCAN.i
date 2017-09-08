@@ -11,11 +11,12 @@ angle H1 O H2
 
 set nspin 1
 #set xc LDA
-set xc LDA_X LDA_C_PZ_MOD
+set xc LIBXC MGGA_X_SCAN:1.0 MGGA_C_SCAN:1.0
+#set xc LIBXC GGA_X_PBE:1.0 GGA_C_PBE:1.0
 set ecut 70
 set wf_dyn PSDA
-set ecutprec 5
-randomize_wf
+#set ecutprec 10
+#randomize_wf
 run 0 100 10
 plot -kinetic_energy_density kin.cube
 #save test.xml

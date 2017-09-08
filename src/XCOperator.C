@@ -30,6 +30,7 @@ XCOperator::XCOperator(Sample& s, const ChargeDensity& cd) :cd_(cd)
   xop_ = 0;
   exc_ = 0.0 ;
   dxc_ = 0.0 ;
+  s_ = &s;
 
   sigma_exc_.resize(6);
 
@@ -50,7 +51,7 @@ XCOperator::XCOperator(Sample& s, const ChargeDensity& cd) :cd_(cd)
   // check the name of the functional
   if ( functional_name ==  "LIBXC" ) 
   {
-    xcp_ = new XCPotential(cd, s.ctrl.xc, s.ctrl);
+    xcp_ = new XCPotential(cd, s.ctrl.xc, s.ctrl, s_);
     hasPotential_ = true;
     hasGGA_ = xcp_->isGGA();
     hasHF_ = false;
@@ -75,7 +76,7 @@ XCOperator::XCOperator(Sample& s, const ChargeDensity& cd) :cd_(cd)
        ( functional_name == "BLYP" ) )
   {
     // create only an xc potential
-    xcp_ = new XCPotential(cd, functional_name, s.ctrl);
+    xcp_ = new XCPotential(cd, functional_name, s.ctrl, s_);
     hasPotential_ = true;
     hasGGA_ = xcp_->isGGA();
     hasHF_ = false;
@@ -93,7 +94,7 @@ XCOperator::XCOperator(Sample& s, const ChargeDensity& cd) :cd_(cd)
   else if ( functional_name == "PBE0" )
   {
     // create an exchange potential
-    xcp_ = new XCPotential(cd, functional_name, s.ctrl);
+    xcp_ = new XCPotential(cd, functional_name, s.ctrl, s_);
 
     // create the exchange operator with mixing coeff=0.25
     xop_ = new ExchangeOperator(s, s.ctrl.alpha_PBE0);
@@ -105,7 +106,7 @@ XCOperator::XCOperator(Sample& s, const ChargeDensity& cd) :cd_(cd)
   else if ( functional_name == "B3LYP" )
   {
     // create an exchange potential
-    xcp_ = new XCPotential(cd, functional_name, s.ctrl);
+    xcp_ = new XCPotential(cd, functional_name, s.ctrl, s_);
 
     // create the exchange operator with mixing coeff=0.20
     xop_ = new ExchangeOperator(s, 0.20);
@@ -136,7 +137,7 @@ void XCOperator::update(std::vector<std::vector<double> >& vr, bool compute_stre
   if ( hasPotential_ )
   {
     // update LDA/GGA xc potential
-    xcp_->update( vr );
+    xcp_->update( vr , s_);
 
     // LDA/GGA exchange energy
     exc_ = xcp_->exc();

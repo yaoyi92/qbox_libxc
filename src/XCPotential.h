@@ -24,6 +24,7 @@
 #include <vector>
 #include <valarray>
 #include <complex>
+#include "Sample.h"
 
 class Basis;
 class FourierTransform;
@@ -39,6 +40,8 @@ class XCPotential
   std::vector<std::vector<double> > vxctmp;          // vxctmp[ispin][ir]
   std::vector<std::complex<double> > tmpr;           // tmpr[ir]
   std::vector<std::complex<double> > tmp1, tmp2;     // tmp1[ig], tmp2[ig]
+  std::vector<std::complex<double> > tmp;     // YY metagga
+  std::vector<std::vector<double> > vxc_tau;          // vxc_tau[ispin][ir]
 
   double exc_, dxc_;
   int nspin_;
@@ -48,14 +51,15 @@ class XCPotential
   FourierTransform& vft_;
   Basis& vbasis_;
 
+
   public:
 
   const XCFunctional* xcf() { return xcf_; }
   bool isGGA(void);
   XCPotential(const ChargeDensity& cd, const std::string functional_name,
-    const Control& ctrl);
+    const Control& ctrl, Sample* s);
   ~XCPotential();
-  void update(std::vector<std::vector<double> >& vr);
+  void update(std::vector<std::vector<double> >& vr, Sample *s);
   void compute_stress(std::valarray<double>& sigma_exc);
   double exc(void) { return exc_; }
   double dxc(void) { return dxc_; }

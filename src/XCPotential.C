@@ -26,12 +26,17 @@
 #include "Basis.h"
 #include "FourierTransform.h"
 #include "blas.h" // daxpy, dcopy
+
+#include "Sample.h"
+#include "Wavefunction.h"
+#include "SlaterDet.h"
+#include "Basis.h"
 #include <cassert>
 using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
 XCPotential::XCPotential(const ChargeDensity& cd, const string functional_name_input,
-  const Control& ctrl): cd_(cd), vft_(*cd_.vft()), vbasis_(*cd_.vbasis())
+  const Control& ctrl, Sample * s): cd_(cd), vft_(*cd_.vft()), vbasis_(*cd_.vbasis())
 {
   string functional_name;
   string tempbuf;
@@ -90,6 +95,14 @@ XCPotential::XCPotential(const ChargeDensity& cd, const string functional_name_i
       vxctmp[ispin].resize(np012loc_);
     tmpr.resize(np012loc_);
   }
+
+  if ( xcf_->ismGGA() )
+  {
+    tmp.resize(s->wf.sd(0,0)->basis().localsize());
+    vxc_tau.resize(nspin_);
+    for ( int ispin = 0; ispin < nspin_; ispin++ )
+      vxc_tau[ispin].resize(np012loc_);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -105,7 +118,7 @@ bool XCPotential::isGGA(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void XCPotential::update(vector<vector<double> >& vr)
+void XCPotential::update(vector<vector<double> >& vr, Sample *s)
 {
   // compute exchange-correlation energy and add vxc potential to vr[ispin][ir]
 
@@ -384,6 +397,7 @@ void XCPotential::update(vector<vector<double> >& vr)
         double *grj = xcf_->grad_rho[j];
         dcopy(&np012loc_,(double*)&tmpr[0],&inc2,grj,&inc1);
       }
+      
     }
     else
     {
@@ -428,6 +442,56 @@ void XCPotential::update(vector<vector<double> >& vr)
           daxpy(&np012loc_,&one,(double*)&tmpr[0],&inc2,&vxctmp[0][0],&inc1);
         }
       }
+
+      // YY metagga
+      const double *const v3 = xcf_->vxc3;
+      for ( int i = 0; i < np012loc_; i++ )
+        vxc_tau[0][i] = 0.0;
+
+      for ( int ikp = 0; ikp < s->wf.nkp(); ikp ++) {
+        //ss_ = s->wf.sd(0, ikp);
+        const double omega_inv = 1.0 / vbasis_.cell().volume();
+        const double weight = s->wf.weight(ikp);
+        for ( int n = 0; n < s->wf.sd(0, ikp)->nstloc(); n++ )
+        {
+          // global n index
+          const int nn = s->wf.sd(0, ikp)->context().mycol() * s->wf.sd(0, ikp)->c().nb() + n;
+          const double fac = -0.5 * weight * omega_inv * s->wf.sd(0, ikp)->occ()[nn];
+          const complex<double> *cptr = s->wf.sd(0, ikp)->c().cvalptr();
+
+          if ( fac > 0.0 )
+          {
+
+            for ( int j = 0; j < 3; j++)
+            {
+              const double *kpgxj = s->wf.sd(0, ikp)->basis().kpgx_ptr(j);
+
+              for ( int i = 0; i < s->wf.sd(0, ikp)->basis().localsize(); i++ )
+                tmp[i] = complex<double>(0.0, kpgxj[i]) * cptr[i+n*s->wf.sd(0, ikp)->c().mloc()];
+
+              cd_.ft(ikp)->backward(&tmp[0],&tmpr[0]);
+
+              for ( int i = 0; i < np012loc_; i++ )
+                tmpr[i] = tmpr[i] * v3[i];
+
+              cd_.ft(ikp)->forward(&tmpr[0], &tmp[0]);
+
+              for ( int i = 0; i < s->wf.sd(0, ikp)->basis().localsize(); i++ )
+                tmp[i] = complex<double>(0.0, kpgxj[i]) * tmp[i];
+
+              cd_.ft(ikp)->backward(&tmp[0],&tmpr[0]);
+
+              for ( int i = 0; i < np012loc_; i++)
+                vxc_tau[0][i] += fac * real(tmpr[i]);
+                //cout << tmpr[i] << endl;
+      
+            }
+          }
+
+        }
+      }
+      // YY metagga
+     
     }
     else
     {
@@ -444,12 +508,13 @@ void XCPotential::update(vector<vector<double> >& vr)
       const double *const e = xcf_->exc;
       const double *const v1 = xcf_->vxc1;
       const double *const rh = xcf_->rho;
+      const double *const ta = xcf_->tau;
       {
         for ( int ir = 0; ir < np012loc_; ir++ )
         {
           const double e_i = e[ir];
           const double rh_i = rh[ir];
-          const double v_i = v1[ir] + vxctmp[0][ir];
+          const double v_i = v1[ir] + vxctmp[0][ir] - vxc_tau[0][ir]; 
           esum += rh_i * e_i;
           dsum += rh_i * ( e_i - v_i );
           vr[0][ir] += v_i;

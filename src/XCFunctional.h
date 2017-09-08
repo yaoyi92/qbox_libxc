@@ -72,7 +72,7 @@ class XCFunctional
   double *vxc3;
 
   virtual bool isGGA(void) const = 0;
-  virtual bool ismGGA(void) {return false;};
+  virtual bool ismGGA(void) const { return false ;};
   virtual std::string name(void) const = 0;
   int np(void) const { return _np; };
   int nspin(void) const { return _nspin; };

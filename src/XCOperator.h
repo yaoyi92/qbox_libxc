@@ -31,6 +31,7 @@ class XCOperator
 
   XCPotential* xcp_;
   ExchangeOperator* xop_;
+  Sample* s_;
 
   const ChargeDensity& cd_;
   double HFmixCoeff_ ;

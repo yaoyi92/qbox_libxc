@@ -290,12 +290,14 @@ void LIBXCFunctional::setxc(void)
         assert( exc != 0 );
         assert( vxc1 != 0 );
         assert( vxc2 != 0 );
+        assert( vxc3 != 0 );
 
         for ( int ir = 0; ir < _np; ir++ )
         {
           exc[ir] = 0.0;
           vxc1[ir] = 0.0;
           vxc2[ir] = 0.0;
+          vxc3[ir] = 0.0;
         }
         double exc_temp, vxc_rho_temp, vxc_sigma_temp, sigma;
         double lapl_rho, vlapl_rho; // YY:not used for this implementation
@@ -336,6 +338,7 @@ void LIBXCFunctional::setxc(void)
               for ( int ir = 0; ir < _np; ir++ )
               {
                 if (rho[ir] < 1.e-10 ) continue;
+                if (tau[ir] < 1.e-10 ) continue;
                 //if (rho[ir] >= 1.e-18) {
                 sigma =  (grad_rho[0][ir]*grad_rho[0][ir] +
                           grad_rho[1][ir]*grad_rho[1][ir] +
@@ -346,6 +349,7 @@ void LIBXCFunctional::setxc(void)
                 exc[ir] += exc_temp * coeff_temp;
                 vxc1[ir] += vxc_rho_temp * coeff_temp;
                 vxc2[ir] += - vxc_sigma_temp * 2.0 * coeff_temp;
+                vxc3[ir] += vxc_tau_temp * coeff_temp;
                 //}
               }
             break;
