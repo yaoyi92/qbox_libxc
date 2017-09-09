@@ -550,9 +550,9 @@ void SlaterDet::rs_mul_add(FourierTransform& ft,
 void SlaterDet::kinetic_hpsi(FourierTransform& ft,
   const double* vxc_tau, SlaterDet& sdp) const
 {
-  // transform states to real space, multiply states by v[r] in real space
-  // transform back to reciprocal space and add to sdp
-  // sdp[n] += v * sd[n]
+  //   the metagga term in generalized KS equation
+  //   - 0.5 * div ( Vtau * grad(psi))
+  //   fft is used to calculate grad and div
   vector<complex<double> > tmp(ft.np012loc());
   vector<complex<double> > ctmp(2*c_.mloc());
 
