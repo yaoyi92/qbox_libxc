@@ -335,6 +335,7 @@ void LIBXCFunctional::setxc(void)
             break;
             case XC_FAMILY_MGGA:
             case XC_FAMILY_HYB_MGGA:
+              //zero = 0.0;
               for ( int ir = 0; ir < _np; ir++ )
               {
                 if (rho[ir] < 1.e-10 ) continue;
@@ -346,6 +347,9 @@ void LIBXCFunctional::setxc(void)
                 xc_mgga_exc_vxc(&func_, 1, &rho[ir], &sigma, &lapl_rho, &tau[ir],
                    &exc_temp, &vxc_rho_temp, &vxc_sigma_temp,
                    &vlapl_rho, &vxc_tau_temp);
+                //xc_mgga_exc_vxc(&func_, 1, &rho[ir], &sigma, &lapl_rho, &zero,
+                //   &exc_temp, &vxc_rho_temp, &vxc_sigma_temp,
+                //   &vlapl_rho, &vxc_tau_temp);
                 exc[ir] += exc_temp * coeff_temp;
                 vxc1[ir] += vxc_rho_temp * coeff_temp;
                 vxc2[ir] += - vxc_sigma_temp * 2.0 * coeff_temp;

@@ -49,6 +49,7 @@ class LIBXCFunctional : public XCFunctional
   std::vector<int> func_ids_;
   std::vector<int> func_families_;
   std::vector<double> func_coeffs_;
+  double zero;
 
   LIBXCFunctional();
 

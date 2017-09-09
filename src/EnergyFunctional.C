@@ -69,6 +69,13 @@ EnergyFunctional::EnergyFunctional( Sample& s, ChargeDensity& cd)
   {
     v_r[ispin].resize(vft->np012loc());
   }
+
+  vxc_tau.resize(wf.nspin());
+  for ( int ispin = 0; ispin < wf.nspin(); ispin++ )
+  {
+    vxc_tau[ispin].resize(vft->np012loc());
+  }
+
   tmp_r.resize(vft->np012loc());
 
   if ( s_.ctxt_.onpe0() )
@@ -756,6 +763,9 @@ double EnergyFunctional::energy(bool compute_hpsi, Wavefunction& dwf,
 
         // local potential
         sd.rs_mul_add(*ft[ikp], &v_r[ispin][0], sdp);
+
+        sd.kinetic_hpsi(*ft[ikp], &vxc_tau[ispin][0], sdp); // metagga gKS term
+
       } //ikp
     } //ispin
 

@@ -58,7 +58,7 @@ endif
 
  INCLUDE += -I$(MPIDIR)/include -I$(XERCESCDIR)/include -I$(LIBXCDIR)/include
 
- CXXFLAGS=  -g -O3 -vec-report1 -D$(PLT) $(INCLUDE) $(PLTFLAGS) $(DFLAGS)
+ CXXFLAGS=  -g -O0 -vec-report1 -D$(PLT) $(INCLUDE) $(PLTFLAGS) $(DFLAGS)
 
  LIBPATH += -L$(MPIDIR)/lib64 \
             -L$(MKLDIR)/lib/intel64  \

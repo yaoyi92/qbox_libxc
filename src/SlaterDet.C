@@ -547,6 +547,52 @@ void SlaterDet::rs_mul_add(FourierTransform& ft,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void SlaterDet::kinetic_hpsi(FourierTransform& ft,
+  const double* vxc_tau, SlaterDet& sdp) const
+{
+  // transform states to real space, multiply states by v[r] in real space
+  // transform back to reciprocal space and add to sdp
+  // sdp[n] += v * sd[n]
+  vector<complex<double> > tmp(ft.np012loc());
+  vector<complex<double> > ctmp(2*c_.mloc());
+
+  const double omega_inv = 1.0 / basis_->cell().volume();
+  const double fac = -0.5 * omega_inv;
+
+  const int np012loc = ft.np012loc();
+  const int mloc = c_.mloc();
+  double* dcp = (double*) sdp.c().valptr();
+
+  {
+    // only one transform at a time
+    for ( int n = 0; n < nstloc(); n++ )
+    {
+      const complex<double> *cptr = c_.cvalptr();
+      for ( int j = 0; j < 3; j++)
+      {
+        const double *kpgxj = basis_->kpgx_ptr(j);
+        for ( int i = 0; i < basis_->localsize(); i++ )
+          ctmp[i] = complex<double>(0.0, kpgxj[i]) * cptr[i+n*c_.mloc()];
+
+        ft.backward(&ctmp[0],&tmp[0]);
+
+        for ( int i = 0; i < np012loc; i++ )
+          tmp[i] *= vxc_tau[i];
+
+        ft.forward(&tmp[0], &ctmp[0]);
+        for ( int i = 0; i < basis_->localsize(); i++ )
+          ctmp[i] = fac * complex<double>(0.0, kpgxj[i]) * ctmp[i];
+
+        int len = 2 * mloc;
+        int inc1 = 1;
+        double alpha = 1.0;
+        daxpy(&len,&alpha,(double*)&ctmp[0],&inc1,&dcp[2*n*mloc],&inc1);
+      }
+    }
+  }
+
+}
+////////////////////////////////////////////////////////////////////////////////
 void SlaterDet::gram(void)
 {
   cleanup();
