@@ -1,4 +1,4 @@
-set cell 5 0 0  0 5 0  0 0 5
+set cell 6 0 0  0 6 0  0 0 6
 species oxygen O_HSCV_PBE-1.0.xml
 species hydrogen H_HSCV_PBE-1.0.xml
 atom O oxygen 0 0 0
@@ -10,7 +10,7 @@ distance O H2
 angle H1 O H2
 
 set nspin 1
-set xc LIBXC MGGA_X_SCAN:1.0 MGGA_C_SCAN:1.0
+set xc LIBXC MGGA_X_TPSS:1.0 MGGA_C_SCAN:1.0
 set ecut 70
 set wf_dyn PSDA
 set ecutprec 5

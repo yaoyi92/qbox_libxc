@@ -338,8 +338,8 @@ void LIBXCFunctional::setxc(void)
               //zero = 0.0;
               for ( int ir = 0; ir < _np; ir++ )
               {
-                if (rho[ir] < 1.e-10 ) continue;
-                if (tau[ir] < 1.e-10 ) continue;
+                if (rho[ir] < 1.e-8 ) continue;
+                if (tau[ir] < 1.e-8 ) continue;
                 //if (rho[ir] >= 1.e-18) {
                 sigma =  (grad_rho[0][ir]*grad_rho[0][ir] +
                           grad_rho[1][ir]*grad_rho[1][ir] +
