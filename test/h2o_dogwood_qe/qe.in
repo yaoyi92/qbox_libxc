@@ -1,0 +1,34 @@
+&CONTROL
+calculation = 'scf',
+title = 'h2o',
+outdir = "./wfcs",
+wfcdir = "./wfcs",
+pseudo_dir = "./",
+verbosity = "high",
+/
+&SYSTEM
+ibrav = 0,
+nat = 3,
+ntyp = 2,
+ecutwfc = 70,
+input_dft = "tpss",
+!input_dft = "sla",
+!input_dft = "sla+pw+tpss",
+!input_dft = "sla+pw+tpss+tpss",
+/
+&ELECTRONS
+/
+
+ATOMIC_SPECIES
+O 16.0 O.blyp-mt.UPF
+H 1.0 H.blyp-vbc.UPF
+
+ATOMIC_POSITIONS { bohr }
+O 0.0 0.0 0.0
+H 1.128 1.444 0.0
+H 1.128 -1.444 0.0
+
+CELL_PARAMETERS { bohr }
+6.0000 0.0 0.0
+0.0 6.0000 0.0
+0.0 0.0 6.0000

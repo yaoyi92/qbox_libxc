@@ -369,16 +369,20 @@ void XCPotential::update(vector<vector<double> >& vr, vector<vector<double> >& v
     dxc_ = tsum[1];
   }
 
-
   if ( xcf_->ismGGA() )
   {
+    double esum=0.0;
+    double dsum=0.0;
     if ( nspin_ == 1 )
     {
       const double *const vxc3 = xcf_->vxc3;
+      const double *const tau = xcf_->tau;
       {
         for ( int ir = 0; ir < np012loc_; ir++ )
         {
           vxc_tau[0][ir] += vxc3[ir];
+          //esum -= vxc3[ir] * tau[ir];
+          //dsum -= vxc3[ir] * tau[ir];
         }
       }
     }
@@ -386,6 +390,13 @@ void XCPotential::update(vector<vector<double> >& vr, vector<vector<double> >& v
     {
       // spin not implement
     }
+    double sum[2], tsum[2];
+    sum[0] = esum * vbasis_.cell().volume() / vft_.np012();
+    sum[1] = dsum * vbasis_.cell().volume() / vft_.np012();
+    MPI_Allreduce(&sum,&tsum,2,MPI_DOUBLE,MPI_SUM,vbasis_.comm());
+    exc_ += tsum[0];
+    dxc_ += tsum[1];
+    std::cout << tsum[0] << " " << tsum[1] << std::endl;
   }
 }
 ////////////////////////////////////////////////////////////////////////////////

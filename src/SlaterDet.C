@@ -572,7 +572,7 @@ void SlaterDet::kinetic_hpsi(FourierTransform& ft,
       {
         const double *kpgxj = basis_->kpgx_ptr(j);
         for ( int i = 0; i < basis_->localsize(); i++ )
-          ctmp[i] = complex<double>(0.0, kpgxj[i]) * cptr[i+n*c_.mloc()];
+          ctmp[i] = complex<double>(0.0, kpgxj[i]) * cptr[i+n*mloc];
 
         ft.backward(&ctmp[0],&tmp[0]);
 
