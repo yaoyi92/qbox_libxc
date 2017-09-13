@@ -554,10 +554,11 @@ void SlaterDet::kinetic_hpsi(FourierTransform& ft,
   //   - 0.5 * div ( Vtau * grad(psi))
   //   fft is used to calculate grad and div
   vector<complex<double> > tmp(ft.np012loc());
-  vector<complex<double> > ctmp(2*c_.mloc());
+  vector<complex<double> > ctmp(2 * c_.mloc());
 
   const double omega_inv = 1.0 / basis_->cell().volume();
-  const double fac = -0.5 * omega_inv;
+  const double omega_inv_sqrt = sqrt(omega_inv);
+  const double fac = -0.5 * omega_inv ;
 
   const int np012loc = ft.np012loc();
   const int mloc = c_.mloc();
@@ -579,6 +580,7 @@ void SlaterDet::kinetic_hpsi(FourierTransform& ft,
         for ( int i = 0; i < np012loc; i++ )
           tmp[i] *= vxc_tau[i];
 
+        //while(true) {}
         ft.forward(&tmp[0], &ctmp[0]);
         for ( int i = 0; i < basis_->localsize(); i++ )
           ctmp[i] = fac * complex<double>(0.0, kpgxj[i]) * ctmp[i];
