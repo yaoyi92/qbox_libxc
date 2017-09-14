@@ -558,12 +558,52 @@ void SlaterDet::kinetic_hpsi(FourierTransform& ft,
 
   const double omega_inv = 1.0 / basis_->cell().volume();
   const double omega_inv_sqrt = sqrt(omega_inv);
-  const double fac = -0.5 * omega_inv ;
+  const double fac = -0.5;
 
   const int np012loc = ft.np012loc();
   const int mloc = c_.mloc();
   double* dcp = (double*) sdp.c().valptr();
 
+  //if ( basis_->real() )
+  if (false)
+  {
+    // transform two states at a time
+    for ( int n = 0; n < nstloc()-1; n++, n++ )
+    {
+      const complex<double> *cptr = c_.cvalptr();
+      for ( int j = 0; j < 3; j++)
+      {
+        const double *kpgxj = basis_->kpgx_ptr(j);
+        for ( int i = 0; i < basis_->localsize(); i++ )
+          {
+            ctmp[i] = complex<double>(0.0, kpgxj[i]) * cptr[i+n*mloc];
+            ctmp[mloc+i] = complex<double>(0.0, kpgxj[i]) * cptr[i+(n+1)*mloc];
+          }
+        ft.backward(&ctmp[0],
+                   &ctmp[mloc],&tmp[0]);
+
+        #pragma omp parallel for
+        for ( int i = 0; i < np012loc; i++ )
+          tmp[i] *= vxc_tau[i];
+
+
+        ft.forward(&tmp[0], &ctmp[0], &ctmp[mloc]);
+        for ( int i = 0; i < basis_->localsize(); i++ )
+          {
+            ctmp[i] = fac * complex<double>(0.0, kpgxj[i]) * ctmp[i];
+            ctmp[mloc+i] = fac * complex<double>(0.0, kpgxj[i]) * ctmp[mloc+i];
+          }
+        int len = 4 * mloc;
+        int inc1 = 1;
+        double alpha = 1.0;
+        daxpy(&len,&alpha,(double*)&ctmp[0],&inc1,&dcp[2*n*mloc],&inc1);
+      }
+    }
+    if ( nstloc() % 2 != 0 )
+    {
+    }
+  }
+  else
   {
     // only one transform at a time
     for ( int n = 0; n < nstloc(); n++ )

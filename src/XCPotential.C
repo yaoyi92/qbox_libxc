@@ -381,7 +381,7 @@ void XCPotential::update(vector<vector<double> >& vr, vector<vector<double> >& v
         for ( int ir = 0; ir < np012loc_; ir++ )
         {
           vxc_tau[0][ir] += vxc3[ir];
-          esum -= vxc3[ir] * tau[ir];
+          //esum -= vxc3[ir] * tau[ir];
           dsum -= vxc3[ir] * tau[ir];
         }
       }
