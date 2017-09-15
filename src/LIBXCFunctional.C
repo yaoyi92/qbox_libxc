@@ -345,7 +345,8 @@ void LIBXCFunctional::setxc(void)
                 //if (rho[ir] >= 1.e-18) {
                 if (rho[ir] < 1.e-8 ) continue;
                 if (tau[ir] < 1.e-8 ) continue;
-                if (sigma < 1.e-10 ) sigma = 1.e-10;
+                if (sigma < 1.e-12 ) continue;
+                //if (sigma < 1.e-10 ) sigma = 1.e-10;
                 tauw = std::max(sigma / (8.0 * rho[ir]), 1.0e-12);
                 //if (tauw >= tau[ir] || fabs(tauw - tau[ir]) < 1.0e-10) {
                 // std::cout << tauw << " " << tau[ir] << std::endl; continue;}

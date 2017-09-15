@@ -15,6 +15,8 @@ set xc LIBXC MGGA_X_REVTPSS:1.0  MGGA_C_REVTPSS:1.0
 #set xc LIBXC MGGA_X_TPSS:1.0  MGGA_C_TPSS:1.0
 #set xc LIBXC MGGA_X_M06_L:1.0  MGGA_C_M06_L:1.0
 #set xc LIBXC MGGA_X_SCAN:1.0  MGGA_C_SCAN:1.0
+set wf_diag EIGVAL
+set nempty 4
 set ecut 70
 set wf_dyn PSDA
 set ecutprec 5

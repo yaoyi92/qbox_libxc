@@ -596,15 +596,15 @@ F
     <GAMMA_ONLY type="logical" size="1">
 T
     </GAMMA_ONLY>
-    <FFT_GRID nr1="32" nr2="32" nr3="32"/>
+    <FFT_GRID nr1="40" nr2="40" nr3="40"/>
     <GVECT_NUMBER type="integer" size="1">
       8536
     </GVECT_NUMBER>
-    <SMOOTH_FFT_GRID nr1s="32" nr2s="32" nr3s="32"/>
+    <SMOOTH_FFT_GRID nr1s="40" nr2s="40" nr3s="40"/>
     <SMOOTH_GVECT_NUMBER type="integer" size="1">
       8536
     </SMOOTH_GVECT_NUMBER>
-    <SMALLBOX_FFT_GRID nr1b="32" nr2b="32" nr3b="32"/>
+    <SMALLBOX_FFT_GRID nr1b="40" nr2b="40" nr3b="40"/>
   </PLANE_WAVES>
   <SPIN>
     <LSDA type="logical" size="1">
@@ -748,7 +748,7 @@ F
          6
     </NUMBER_OF_ATOMIC_WFC>
     <NUMBER_OF_BANDS type="integer" size="1">
-         4
+         8
     </NUMBER_OF_BANDS>
     <NUMBER_OF_ELECTRONS type="real" size="1">
  8.000000000000000E+000
@@ -756,7 +756,7 @@ F
     <UNITS_FOR_K-POINTS UNITS="2 pi / a"/>
     <UNITS_FOR_ENERGIES UNITS="Hartree"/>
     <FERMI_ENERGY type="real" size="1">
--1.193381623788714E-001
+-8.827607840232969E-002
     </FERMI_ENERGY>
   </BAND_STRUCTURE_INFO>
   <EIGENVALUES>
