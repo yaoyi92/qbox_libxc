@@ -342,14 +342,10 @@ void LIBXCFunctional::setxc(void)
                 sigma =  (grad_rho[0][ir]*grad_rho[0][ir] +
                           grad_rho[1][ir]*grad_rho[1][ir] +
                           grad_rho[2][ir]*grad_rho[2][ir] );
-                //if (rho[ir] >= 1.e-18) {
                 if (rho[ir] < 1.e-8 ) continue;
                 if (tau[ir] < 1.e-8 ) continue;
                 if (sigma < 1.e-12 ) continue;
-                //if (sigma < 1.e-10 ) sigma = 1.e-10;
                 tauw = std::max(sigma / (8.0 * rho[ir]), 1.0e-12);
-                //if (tauw >= tau[ir] || fabs(tauw - tau[ir]) < 1.0e-10) {
-                // std::cout << tauw << " " << tau[ir] << std::endl; continue;}
                 if (tauw >= tau[ir] || fabs(tauw - tau[ir]) < 1.0e-10) continue;
                 xc_mgga_exc_vxc(&func_, 1, &rho[ir], &sigma, &lapl_rho, &tau[ir],
                    &exc_temp, &vxc_rho_temp, &vxc_sigma_temp,

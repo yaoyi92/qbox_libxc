@@ -27,8 +27,10 @@ input_dft = "tpss",
 /
 
 ATOMIC_SPECIES
-O 16.0 O.blyp-mt.UPF
-H 1.0 H.blyp-vbc.UPF
+O 16.0 O.SCAN.UPF
+H 1.0 H.SCAN.UPF
+!O 16.0 O.blyp-mt.UPF
+!H 1.0 H.blyp-vbc.UPF
 
 ATOMIC_POSITIONS { bohr }
 O 0.0 0.0 0.0

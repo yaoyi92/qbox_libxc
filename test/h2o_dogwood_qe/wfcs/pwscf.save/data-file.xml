@@ -86,8 +86,8 @@ O
       <MASS type="real" size="1">
  1.600000000000000E+001
       </MASS>
-      <PSEUDO type="character" size="1" len="13">
-O.blyp-mt.UPF
+      <PSEUDO type="character" size="1" len="10">
+O.SCAN.UPF
       </PSEUDO>
     </SPECIE.1>
     <SPECIE.2>
@@ -97,8 +97,8 @@ H
       <MASS type="real" size="1">
  1.000000000000000E+000
       </MASS>
-      <PSEUDO type="character" size="1" len="14">
-H.blyp-vbc.UPF
+      <PSEUDO type="character" size="1" len="10">
+H.SCAN.UPF
       </PSEUDO>
     </SPECIE.2>
     <PSEUDO_DIR type="character" size="1" len="2">
@@ -745,7 +745,7 @@ F
 F
     </NON-COLINEAR_CALCULATION>
     <NUMBER_OF_ATOMIC_WFC type="integer" size="1">
-         6
+         4
     </NUMBER_OF_ATOMIC_WFC>
     <NUMBER_OF_BANDS type="integer" size="1">
          8
@@ -756,7 +756,7 @@ F
     <UNITS_FOR_K-POINTS UNITS="2 pi / a"/>
     <UNITS_FOR_ENERGIES UNITS="Hartree"/>
     <FERMI_ENERGY type="real" size="1">
--8.827607840232969E-002
+-9.030439547024048E-002
     </FERMI_ENERGY>
   </BAND_STRUCTURE_INFO>
   <EIGENVALUES>

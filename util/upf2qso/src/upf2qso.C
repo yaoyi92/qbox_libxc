@@ -421,7 +421,7 @@ int main(int argc, char** argv)
   spline(n,&upf_r[0],&f[0],yp_left,yp_right,
          bcnat_left,bcnat_right,&fspl[0]);
 
-  const double mesh_spacing = 0.01;
+  const double mesh_spacing = 0.001;
   int nplin = (int) (rcut / mesh_spacing);
 
   vector<double> vloc_lin(nplin);
